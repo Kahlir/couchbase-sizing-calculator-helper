@@ -3,6 +3,7 @@
 import os
 import json
 import warnings
+import re
 import sys
 import logging
 import logging.handlers
@@ -121,6 +122,21 @@ class RunMain(object):
                     bucket_count += 1
 
             if len(config.indexes) > 0:
+                #Mapping from primary primary index name to count of its replicas
+                replica_suffix_re = re.compile(r"\s*\(replica \d+\)$")
+
+                replica_counts = {}
+                for idx in config.indexes:
+                    if not idx.indexName:
+                        continue
+
+                    if idx.replicaId == 0:
+                        if idx.indexName not in replica_counts:
+                            replica_counts[idx.indexName] = 0
+                    else:
+                        base_name = replica_suffix_re.sub("", idx.indexName)
+                        replica_counts[base_name] = replica_counts.get(base_name, 0) + 1
+                        
                 index_table = {}
                 logger.debug(f"Found {len(config.indexes)} index record(s)")
                 replica_set = set([i.indexName for i in config.indexes if i.replicaId > 0])
@@ -158,11 +174,9 @@ class RunMain(object):
                         bucket = buckets.get_bucket(_index_data['summary'].bucket)
                         scope = bucket.get_scope(_index_data['summary'].scope)
                         collection = scope.get_collection(_index_data['summary'].collection)
-                        if any(i.startswith(_index_data['summary'].indexName) for i in replica_set):
-                            replicas = 1
-                        else:
-                            replicas = 0
-
+                        
+                        replicas = replica_counts.get(_index_data['summary'].indexName, 0)
+                      
                         index_entry = SizingClusterIndexEntry.from_config(str(index_count), bucket, scope, collection, replicas, _index_data['summary'], self.index_ratio)
                         logger.info(f"Adding index {index_count + 1} ({_index_name}) from keyspace {_keyspace}")
                         indexes.index(index_entry.as_dict)
