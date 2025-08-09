@@ -910,7 +910,7 @@ class SizingClusterIndexEntry(object):
                     collection: SizingClusterCollection,
                     replica: int,
                     config: ClusterConfigIndexes,
-                    working_set_ratio: int = 10):
+                    working_set_ratio: int = 20):
         resident_ratio = working_set_ratio / 100
         plasma_key_size = cls.calc_dist_value(config.key_size_distribution)
         if config.definition.startswith("CREATE PRIMARY INDEX"):
