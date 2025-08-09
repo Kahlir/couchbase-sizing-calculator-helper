@@ -31,7 +31,7 @@ class RunMain(object):
         self.cloud = parameters.cloud
         self.self_managed = parameters.self
         self.bucket_ratio = parameters.bucket_ratio
-        self.index_ratio = parameters.index_ratio if parameters.index_ratio else 10
+        self.index_ratio = parameters.index_ratio if parameters.index_ratio else 20
         self.read_rate = parameters.read
         self.write_rate = parameters.write
         self.delete_rate = parameters.delete
