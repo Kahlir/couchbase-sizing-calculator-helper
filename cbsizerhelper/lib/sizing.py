@@ -924,7 +924,7 @@ class SizingClusterIndexEntry(object):
             array_length = config.avg_array_length
             if len(config.arrkey_size_distribution) > 0 and array_length != 0:
                 raw_size = cls.calc_dist_value(config.arrkey_size_distribution)
-                array_index_size_of_each_element = raw_size / array_length
+                array_index_size_of_each_element = round(raw_size / array_length)
                 documents_in_index = config.docid_count
             else:
                 array_index_size_of_each_element = 0
